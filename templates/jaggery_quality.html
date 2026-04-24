@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<h3 class="mb-4">🔬 Jaggery Quality Analysis</h3>
+
+<div class="row">
+
+{% for product in products %}
+
+<div class="col-md-4 mb-3">
+  <div class="card p-3 shadow-sm">
+
+    <h5>{{ product.name }}</h5>
+    <p>₹{{ product.current_price }}</p>
+
+    <p>
+      {% if quality_predictions.get(product.id) == 'High' %}
+        <span class="badge bg-success">⭐ High Quality</span>
+      {% elif quality_predictions.get(product.id) == 'Medium' %}
+        <span class="badge bg-warning text-dark">⭐ Medium Quality</span>
+      {% else %}
+        <span class="badge bg-danger">⭐ Low Quality</span>
+      {% endif %}
+    </p>
+
+  </div>
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+{% endblock %}

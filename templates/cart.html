@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">🛒 Your Cart</h2>
+
+  {% if orders %}
+  <table class="table table-bordered align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Image</th>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Total</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td><img src="{{ order.product.image_url }}" alt="{{ order.product.name }}" style="width:80px; height:80px; object-fit:cover;" class="rounded"></td>
+        <td>{{ order.product.name }}</td>
+        <td>₹{{ order.product.current_price }}</td>
+        <td class="text-center">
+          <form action="{{ url_for('decrease_quantity', order_id=order.id) }}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-outline-danger">−</button>
+          </form>
+          <span class="mx-2">{{ order.quantity }}</span>
+          <form action="{{ url_for('increase_quantity', order_id=order.id) }}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-outline-success">+</button>
+          </form>
+        </td>
+        <td>₹{{ order.total_price }}</td>
+        <td>
+          <form action="{{ url_for('decrease_quantity', order_id=order.id) }}" method="post">
+            <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="text-end mt-4">
+    <h4>Total Amount: ₹{{ total_price }}</h4>
+    <form method="POST">
+      <button type="submit" class="btn btn-success btn-lg mt-3">💳 Pay Now</button>
+    </form>
+  </div>
+  {% else %}
+  <p>Your cart is empty.</p>
+  {% endif %}
+</div>
+{% endblock %}

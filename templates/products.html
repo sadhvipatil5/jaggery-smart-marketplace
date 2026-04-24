@@ -1,0 +1,21 @@
+// {% extends "base.html" %}
+{% block content %}
+<h1>Our Jaggery Products</h1>
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-4">
+        <div class="card">
+            <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+            <div class="card-body">
+                <h5>{{ product.name }}</h5>
+                <p>{{ product.description }}</p>
+<p class="price">
+    ₹{{ "%.2f"|format(product.current_price if product.current_price else product.price) }}
+</p>
+                <a href="/product/{{ product.id }}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

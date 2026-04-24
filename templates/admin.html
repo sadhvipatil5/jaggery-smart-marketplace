@@ -1,0 +1,36 @@
+// {% extends "base.html" %}
+{% block content %}
+<h1>Admin Panel</h1>
+<form method="POST" action="/admin">
+    <button type="submit" class="btn btn-warning">Update Seasonal Prices</button>
+</form>
+<a href="/admin/add_product" class="btn btn-success mt-3">Add New Product</a>
+<h2 class="mt-4">Manage Products</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Base Price</th>
+            <th>Current Price</th>
+            <th>Stock</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>${{ "%.2f"|format(product.base_price) }}</td>
+            <td>${{ "%.2f"|format(product.current_price) }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+                <a href="/admin/edit_product/{{ product.id }}" class="btn btn-sm btn-primary">Edit</a>
+                <form method="POST" action="/admin/delete_product/{{ product.id }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this product?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

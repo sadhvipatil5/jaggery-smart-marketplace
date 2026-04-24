@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Track Order</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container mt-5">
+
+<h2>Track Your Order</h2>
+
+<div class="card p-4">
+    <h4>{{ order.product.name }}</h4>
+    <p>Order ID: {{ order.id }}</p>
+    <p>Status: <strong>{{ order.status }}</strong></p>
+
+    <hr>
+
+    <!-- ✅ Jinja Logic FIXED -->
+    {% if order.status == 'Pending' %}
+        {% set progress = 20 %}
+    {% elif order.status == 'Paid' %}
+        {% set progress = 40 %}
+    {% elif order.status == 'Shipped' %}
+        {% set progress = 60 %}
+    {% elif order.status == 'Out for Delivery' %}
+        {% set progress = 80 %}
+    {% elif order.status == 'Delivered' %}
+        {% set progress = 100 %}
+    {% else %}
+        {% set progress = 10 %}
+    {% endif %}
+
+
+    <hr>
+
+{% if order.status == 'Pending' %}
+<form action="{{ url_for('cancel_order', order_id=order.id) }}" method="POST">
+    <button class="btn btn-danger"
+            onclick="return confirm('Are you sure you want to cancel this order?')">
+        ❌ Cancel Order
+    </button>
+</form>
+{% else %}
+<div class="alert alert-info mt-3">
+    🚫 Order cannot be cancelled after it is {{ order.status }}
+</div>
+{% endif %}
+    <!-- Progress Bar -->
+    <div class="progress" style="height: 25px;">
+        <div 
+            class="progress-bar bg-success" 
+            role="progressbar" 
+            style="width: {{ progress }}%;">
+            {{ order.status }}
+        </div>
+    </div>
+
+    <br>
+
+    <!-- Step Labels -->
+    <div class="d-flex justify-content-between">
+        <span>Pending</span>
+        <span>Paid</span>
+        <span>Shipped</span>
+        <span>Out for Delivery</span>
+        <span>Delivered</span>
+    </div>
+</div>
+
+</body>
+</html>

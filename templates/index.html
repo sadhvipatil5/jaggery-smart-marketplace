@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="text-center mb-5">
+  <h2 class="fw-bold text-brown">Our Popular Jaggery Products</h2>
+  <p class="text-muted">Explore our best organic and flavored jaggery varieties.</p>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center g-4">
+
+    {% for product in products %}
+
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch">
+
+      <div class="card shadow-sm border-0 rounded-4 w-100">
+
+        <a href="{{ url_for('product_detail', product_id=product.id) }}">
+
+          <img src="{{ product.image_url if product.image_url else url_for('static', filename='images/default_jaggery.jpg') }}"
+               class="card-img-top rounded-top-4"
+               alt="{{ product.name }}"
+               style="height:200px;object-fit:cover;">
+
+        </a>
+
+        <div class="card-body text-center">
+
+          <h6 class="fw-bold">{{ product.category }}</h6>
+
+     
+
+<small class="text-muted">
+Original: ₹{{ product.current_price }}
+</small>
+
+          <div class="d-flex justify-content-center gap-2">
+
+            <form action="{{ url_for('add_to_wishlist', product_id=product.id) }}" method="post">
+              <button class="btn btn-outline-danger btn-sm">
+                ❤ Wishlist
+              </button>
+            </form>
+
+            <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
+              <button class="btn btn-success btn-sm">
+                🛒 Add to Cart
+              </button>
+            </form>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    {% endfor %}
+
+  </div>
+</div>
+
+{% if not products %}
+<p class="text-center text-muted">No products available yet.</p>
+{% endif %}
+
+
+<!-- ================================= -->
+<!-- 🤖 AI CHATBOT -->
+<!-- ================================= -->
+<style>
+#chatbox {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 250px;
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 10px;
+    font-family: Arial;
+}
+
+#messages {
+    height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+input {
+    width: 70%;
+    padding: 5px;
+}
+
+button {
+    padding: 5px;
+}
+</style>
+<div class="chatbot-container">
+
+    <div class="chat-header" onclick="toggleChat()">
+        🤖 Jaggery AI Assistant
+    </div>
+
+    <div class="chat-body" id="chatBody">
+        <div id="messages"></div>
+    </div>
+
+    <div class="chat-footer">
+        <input type="text" id="userInput" placeholder="Ask about jaggery..." />
+        <button onclick="sendMessage()">➤</button>
+    </div>
+
+</div>
+
+<script>
+function sendMessage() {
+    let input = document.getElementById("userInput");
+    let message = input.value.trim();
+
+    if (message === "") return;
+
+    let chat = document.getElementById("messages");
+
+    // User message
+    chat.innerHTML += `<div class="user-msg">${message}</div>`;
+
+    fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: message })
+    })
+    .then(res => res.json())
+    .then(data => {
+        chat.innerHTML += `<div class="bot-msg">${data.reply}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+    });
+
+    input.value = "";
+}
+
+/* Toggle chat */
+function toggleChat() {
+    let body = document.getElementById("chatBody");
+    body.style.display = body.style.display === "none" ? "block" : "none";
+}
+
+/* Enter key support */
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("userInput").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    });
+});
+</script>
+<!-- ================================= -->
+<!-- 🔬 JAGGERY QUALITY CHECK BUTTON -->
+<!-- ================================= -->
+
+<div style="position:fixed;bottom:20px;left:20px">
+
+<a href="/jaggery_quality" class="btn btn-warning">
+
+🔬 Check Jaggery Quality
+
+</a>
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">👤 My Account</h2>
+
+<div class="row">
+
+  <!-- ✅ LEFT SIDE MENU -->
+  <div class="col-md-3">
+    <div class="list-group shadow-sm">
+
+      <a href="{{ url_for('account') }}" class="list-group-item list-group-item-action active">
+        🏠 My Account
+      </a>
+
+      <a href="{{ url_for('my_orders') }}" class="list-group-item list-group-item-action">
+        📦 My Orders
+      </a>
+
+      <a href="{{ url_for('wishlist') }}" class="list-group-item list-group-item-action">
+        ❤️ Wishlist
+      </a>
+
+      <a href="{{ url_for('cart') }}" class="list-group-item list-group-item-action">
+        🛒 Cart
+      </a>
+
+      <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action text-danger">
+        🚪 Logout
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ✅ RIGHT SIDE CONTENT -->
+  <div class="col-md-9">
+
+    <!-- USER INFO -->
+    <div class="card mb-4 p-3 shadow-sm">
+      <h5>👤 User Details</h5>
+      <p><strong>Name:</strong> {{ current_user.username }}</p>
+      <p><strong>Email:</strong> {{ current_user.email }}</p>
+    </div>
+
+    <!-- ADDRESS SECTION -->
+    <div class="card p-3 shadow-sm">
+      <h5>📍 Saved Addresses</h5>
+
+      {% if current_user.addresses %}
+        {% for addr in current_user.addresses %}
+          <div class="border p-3 mb-3 rounded">
+
+            <strong>{{ addr.full_name }}</strong><br>
+            {{ addr.address_line }}<br>
+            {{ addr.city }} - {{ addr.pincode }}<br>
+            📞 {{ addr.phone }}
+
+            <div class="mt-2">
+
+              <!-- EDIT -->
+              <a href="{{ url_for('edit_address', address_id=addr.id) }}"
+                 class="btn btn-sm btn-warning">
+                 ✏️ Edit
+              </a>
+
+              <!-- DELETE -->
+              <form action="{{ url_for('delete_address', address_id=addr.id) }}"
+                    method="POST" style="display:inline;">
+                <button class="btn btn-sm btn-danger"
+                        onclick="return confirm('Delete this address?')">
+                  🗑 Delete
+                </button>
+              </form>
+
+            </div>
+
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No address saved yet.</p>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

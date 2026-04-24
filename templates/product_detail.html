@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+
+  {% if product %}
+  <div class="row g-4">
+    <!-- Left side: Product Image -->
+    <div class="col-md-6 text-center">
+      <img src="{{ product.image_url if product.image_url else url_for('static', filename='images/default_jaggery.jpg') }}"
+           alt="{{ product.name }}"
+           class="img-fluid rounded-4 shadow"
+           style="max-height: 400px; object-fit: cover;">
+    </div>
+
+    <!-- Right side: Product Details -->
+    <div class="col-md-6">
+      <h2 class="fw-bold mb-2">{{ product.name }}</h2>
+      <p class="text-muted mb-2">{{ product.category }}</p>
+      <h4 class="text-success fw-semibold mb-3">₹{{ product.current_price }}</h4>
+      <p class="mb-3">{{ product.description }}</p>
+      <p><strong>In Stock:</strong> {{ product.stock }}</p>
+
+      <!-- Buttons -->
+      <div class="d-flex gap-3 mt-4">
+        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
+          <button type="submit" class="btn btn-success px-4">
+            🛒 Add to Cart
+          </button>
+        </form>
+     <form action="{{ url_for('buy_now', product_id=product.id) }}" method="post">
+    <button type="submit" class="btn btn-success">
+        Buy Now
+    </button>
+</form>
+      </div>
+
+      <a href="{{ url_for('index') }}" class="btn btn-secondary mt-4">← Back to Products</a>
+    </div>
+  </div>
+
+  <hr class="my-5">
+
+<!-- Recommended / Similar Products -->
+<h3 class="mb-4 text-center">Similar Products</h3>
+
+<div class="row justify-content-center g-4">
+
+{% if recommendations and recommendations|length > 0 %}
+
+    {% for rec in recommendations %}
+
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 text-center">
+
+        <a href="{{ url_for('product_detail', product_id=rec.id) }}" 
+           class="text-decoration-none text-dark">
+
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+
+        <img src="{{ rec.image_url if rec.image_url else url_for('static', filename='images/default_jaggery.jpg') }}"
+             class="card-img-top"
+             style="height:200px; object-fit:cover;">
+
+        <div class="card-body">
+
+        <h6 class="fw-bold">{{ rec.name }}</h6>
+
+        <p class="text-success fw-semibold">
+        ₹{{ rec.current_price }}
+        </p>
+
+        </div>
+
+        </div>
+
+        </a>
+
+    </div>
+
+    {% endfor %}
+
+{% else %}
+
+<p class="text-center text-muted">
+No similar products found.
+</p>
+
+{% endif %}
+
+</div>
+
+
+{% else %}
+
+<p class="text-danger text-center">
+Product not found.
+</p>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

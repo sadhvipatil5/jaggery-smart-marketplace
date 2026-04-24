@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+<h2 class="text-center text-danger fw-bold mb-4">
+🧑‍💼 Admin Dashboard
+</h2>
+
+
+<!-- =============================== -->
+<!-- 📊 SALES ANALYTICS -->
+<!-- =============================== -->
+
+<div class="card shadow mb-4 p-4">
+
+<h4 class="mb-3">📊 Sales Analytics</h4>
+
+<div class="row text-center">
+
+<div class="col-md-4">
+<h5>Total Products</h5>
+<h3 class="text-primary">{{ total_products }}</h3>
+</div>
+
+<div class="col-md-4">
+<h5>Total Orders</h5>
+<h3 class="text-success">{{ total_orders }}</h3>
+</div>
+
+<div class="col-md-4">
+<h5>Total Revenue</h5>
+<h3 class="text-warning">₹{{ total_revenue }}</h3>
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- =============================== -->
+<!-- 🤖 AI PRICE PREDICTION -->
+<!-- =============================== -->
+
+
+
+
+
+<!-- =============================== -->
+<!-- ➕ ADD PRODUCT -->
+<!-- =============================== -->
+
+<div class="card mb-4 p-4 shadow">
+
+<h4 class="mb-3">➕ Add New Product</h4>
+
+<form action="{{ url_for('add_product') }}" method="POST">
+
+<div class="row g-3">
+
+<div class="col-md-3">
+<input type="text" name="name" class="form-control" placeholder="Product Name" required>
+</div>
+
+<div class="col-md-3">
+<input type="text" name="category" class="form-control" placeholder="Category" required>
+</div>
+
+<div class="col-md-2">
+<input type="number" name="price" step="0.01" class="form-control" placeholder="Base Price" required>
+</div>
+
+<div class="col-md-2">
+<input type="number" name="current_price" step="0.01" class="form-control" placeholder="Current Price" required>
+</div>
+
+<div class="col-md-2">
+<input type="number" name="stock" class="form-control" placeholder="Stock" required>
+</div>
+
+</div>
+
+<div class="mt-3">
+<textarea name="description" class="form-control" rows="2" placeholder="Description" required></textarea>
+</div>
+
+<div class="mt-3">
+<input type="text" name="image_url" class="form-control" placeholder="Image URL">
+</div>
+
+<button type="submit" class="btn btn-success mt-3">
+Add Product
+</button>
+
+</form>
+
+</div>
+
+
+
+<!-- =============================== -->
+<!-- 📦 PRODUCT TABLE -->
+<!-- =============================== -->
+
+<div class="card p-4 shadow">
+
+<h4 class="mb-3">📦 Product List</h4>
+
+{% if products and products|length > 0 %}
+
+<table class="table table-striped text-center">
+
+<thead class="table-dark">
+<tr>
+<th>ID</th>
+<th>Image</th>
+<th>Name</th>
+<th>Category</th>
+<th>Price</th>
+<th>Current Price</th>
+<th>Stock</th>
+<th>AI Price</th>
+<th>Quality</th>
+<th>Seasonal Demand</th>
+<th>Actions</th>
+</tr>
+</thead>
+<div class="card shadow mb-4 p-4">
+  <h4>🤖 AI Insights</h4>
+
+  <ul class="list-group">
+
+    {% set high_demand = [] %}
+
+    {% for p in products %}
+      {% if seasonal_demand.get(p.id,0) > 10 %}
+        {% set _ = high_demand.append(p.name) %}
+      {% endif %}
+    {% endfor %}
+
+    <li class="list-group-item">
+      🔥 High Demand Products:
+      {{ high_demand | join(', ') if high_demand else 'None' }}
+    </li>
+
+    <li class="list-group-item">
+      ⚠️ Products needing restock:
+      {% for p in products %}
+        {% if seasonal_demand.get(p.id,0) > p.stock %}
+          {{ p.name }},
+        {% endif %}
+      {% endfor %}
+    </li>
+
+  </ul>
+</div>
+<tbody>
+
+{% for product in products %}
+
+<tr>
+<td>{{ product.id }}</td>
+
+<td>
+<img src="{{ product.image_url or 'https://via.placeholder.com/70x50' }}" width="70">
+</td>
+
+<td>{{ product.name }}</td>
+<td>{{ product.category }}</td>
+<td>₹{{ product.price }}</td>
+<td>
+  ₹{{ product.current_price }}
+  {% if predicted_prices.get(product.id,0) > product.current_price %}
+    <span class="text-danger">⬆</span>
+  {% elif predicted_prices.get(product.id,0) < product.current_price %}
+    <span class="text-success">⬇</span>
+  {% endif %}
+</td>
+<td>{{ product.stock }}</td>
+<td class="text-success fw-bold">
+₹{{ predicted_prices.get(product.id, product.current_price) }}
+</td>
+
+<td class="text-info fw-bold">
+{{ quality_predictions.get(product.id, "N/A") }}
+</td>
+
+<td class="text-warning fw-bold">
+{{ seasonal_demand.get(product.id, 0) }} units
+</td>
+
+<td>
+  {% if seasonal_demand.get(product.id,0) > product.stock %}
+    <span class="badge bg-danger">Restock Needed</span>
+  {% elif seasonal_demand.get(product.id,0) > 5 %}
+    <span class="badge bg-warning text-dark">Medium Demand</span>
+  {% else %}
+    <span class="badge bg-success">Low Demand</span>
+  {% endif %}
+</td>
+<td>
+  <button type="button"
+        class="btn btn-sm btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#editModal{{ product.id }}">
+    Edit
+  </button>
+
+  <form action="{{ url_for('delete_product', product_id=product.id) }}"
+        method="POST"
+        style="display:inline;">
+    <button class="btn btn-danger btn-sm">Delete</button>
+  </form>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+</table>
+
+{% endif %}
+
+
+<!-- ✅ EDIT MODALS (OUTSIDE TABLE) -->
+{% for product in products %}
+<div class="modal fade" id="editModal{{ product.id }}" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <form method="POST" action="{{ url_for('edit_product', product_id=product.id) }}">
+
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+
+          <input type="text" name="name" class="form-control mb-2"
+                 value="{{ product.name }}" required>
+
+          <textarea name="description" class="form-control mb-2">
+{{ product.description }}
+          </textarea>
+
+          <input type="number" step="0.01" name="price"
+                 class="form-control mb-2" value="{{ product.price }}">
+
+          <input type="number" step="0.01" name="current_price"
+                 class="form-control mb-2" value="{{ product.current_price }}">
+
+          <input type="text" name="category"
+                 class="form-control mb-2" value="{{ product.category }}">
+
+          <input type="number" name="stock"
+                 class="form-control mb-2" value="{{ product.stock }}">
+
+          <input type="text" name="image_url"
+                 class="form-control mb-2" value="{{ product.image_url }}">
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Update</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+
+
+<!-- =============================== -->
+<!-- JAVASCRIPT FOR ML FEATURES -->
+<!-- =============================== -->
+
+
+
+
+{% endblock %}
